@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
+    public int primeNumbers = 0;
     public EditText editTextMatrikelnummer;
     public static TextView textViewResult;
     public Button buttonSend;
@@ -36,6 +37,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 listenerButtonSend();
+            }
+        });
+
+        buttonCalculate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listenerButtonCalculate();
             }
         });
     }
@@ -72,4 +80,88 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
     }
+
+    private void listenerButtonCalculate() throws NumberFormatException{
+        try {
+            new Thread() {
+                public void run() {
+                    if (editTextMatrikelnummer.getText().toString().length() == 0) {
+                        editTextMatrikelnummer.setText(-1);
+                    }
+
+                    int num = Integer.parseInt(editTextMatrikelnummer.getText().toString());
+                    String result = toCalculate(num);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            textViewResult.setText(result);
+                        }
+                    });
+
+                }
+            }.start();
+        }catch(NumberFormatException e){
+
+        }
+    }
+
+    private String toCalculate(int num) {
+        //save the number in an Array
+        String stringNum = Integer.toString(num);
+        int[] array = new int[stringNum.length()];
+        for (int i = 0; i < stringNum.length(); i++) {
+            array[i] = Character.getNumericValue(stringNum.charAt(i));
+        }
+
+        array = Sort(array);
+        String result = finalProduct(array);
+
+        return result;
+    }
+
+    private String finalProduct(int[] array){
+        for(int i = 0; i < array.length; i++){
+            if(isPrime(array[i])){
+                primeNumbers++;
+            }
+        }
+
+        int[] res = new int[array.length - primeNumbers];
+        int j = 0;
+
+
+        for(int i = 0; i < array.length; i++) {
+            if(!isPrime(array[i])){
+                res[j] = array[i];
+                j++;
+            }
+        }
+
+        return Arrays.toString(res);
+    }
+
+    private static int[] Sort(int[] arr) {
+        int n = arr.length;
+        int temp;
+        for (int i = 0; i < n; i++) {
+            for (int j = 1; j < (n - i); j++) {
+                if (arr[j - 1] > arr[j]) {
+                    temp = arr[j - 1];
+                    arr[j - 1] = arr[j];
+                    arr[j] = temp;
+                }
+            }
+        }
+        return arr;
+    }
+
+    private boolean isPrime(int a){
+        if(a == 2 || a == 3 || a == 5 || a == 7)    {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
